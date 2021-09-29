@@ -80,10 +80,10 @@ describe.only('Leads endpoints', function() {
         });
     });
 
-    describe.only('POST /leads', () => {
+    describe('POST /leads', () => {
         it(`creates a lead, responding with a 201 and the new lead`, () => {
             this.retries(3)
-            
+
             const newLead = {
                 name: 'Test lead',
                 email: 'testemail@email.com',
