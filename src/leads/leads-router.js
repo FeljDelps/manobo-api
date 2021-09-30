@@ -54,19 +54,31 @@ leadsRouter
 
 leadsRouter
     .route('/:lead_id')
-    .get((req, res, next) => {
-        const knexInstance = req.app.get('db');
-    
-        LeadsService.getById(knexInstance, req.params.lead_id)
+    .all((req, res, next) => {
+        LeadsService.getById(req.app.get('db'), req.params.lead_id)
             .then(lead => {
-                if(!lead) {
-                    return res.status(404).json({ 
+                if (!lead) {
+                    return res.status(404).json({
                         error: { message: `Lead doesn't exist` }
-                    });
+                    })
                 };
-                res.json(serializeLead(lead))
+                res.lead = lead
+                next();
             })
-            .catch(next)  
+            .catch(next)
     })
+    .get((req, res, next) => {
+        res.json(serializeLead(lead))
+        .catch(next)
+    })
+    .delete((req, res, next) => {
+        const knexInstance = req.app.get('db')
+
+        LeadsService.deleteLead(knexInstance, req.params.lead_id)
+            .then(rowsAffected => {
+                res.status(204).end()
+            })
+            .catch(next)
+    });
 
 module.exports = leadsRouter;

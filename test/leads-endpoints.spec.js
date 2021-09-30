@@ -182,7 +182,43 @@ describe.only('Leads endpoints', function() {
                         expect(res.body.name).to.eql(goodLead.name)
                         expect(res.body.comment).to.eql(goodLead.comment)
                     })
+            });
+        });
+    });
+
+    describe.only(`DELETE /leads/:lead_id`, () => { 
+        context('Given no leads in the database', () => {
+            it('responds with 404', () => {
+                const leadId = 12345;
+
+                return supertest(app)
+                    .delete(`/leads/${leadId}`)
+                    .expect(404, { error: { message: `Lead doesn't exist` } })
+                });
+        });
+        
+        context('Given there are leads in the database', () => {
+            const testLeads = makeLeadsArray()
+
+            beforeEach('insert leads into database', () => {
+                return db
+                    .into('manobo_leads')
+                    .insert(testLeads)
             })
+
+            it('responds with a 204 and removes the lead', () => {
+                const idToRemove = 2;
+                const expectedLeads = testLeads.filter(lead => lead.id !== idToRemove)
+                
+                return supertest(app)
+                    .delete(`/leads/${idToRemove}`)
+                    .expect(204)
+                    .then(res => 
+                        supertest(app)
+                            .get('/leads')
+                            .expect(expectedLeads)
+                );
+            });
         });
     });
 });
