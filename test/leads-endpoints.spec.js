@@ -80,7 +80,7 @@ describe.only('Leads endpoints', function() {
         });
     });
 
-    describe('POST /leads', () => {
+    describe.only('POST /leads', () => {
         it(`creates a lead, responding with a 201 and the new lead`, () => {
             this.retries(3)
 
@@ -111,14 +111,27 @@ describe.only('Leads endpoints', function() {
                         .get(`/leads/${postRes.body.id}`)
                         .expect(postRes.body)
                 );
+        }); 
+    
+        const requiredFields = ['name', 'email', 'phone'];
+
+        requiredFields.forEach(field => {
+            const newLead = {
+                name: 'Test lead',
+                email: 'Test email',
+                phone: '(111) 111-1111'
+            };
+            
+            it(`responds with 400 and an error message when the '${field}' is missing`, () => {
+                delete newLead[field]
+    
+                return supertest(app)
+                    .post('/leads')
+                    .send(newLead)
+                    .expect(400, { 
+                        error: { message: `Missing '${field}' in request body`}
+                    })
+            });
         });
-        
-        
     });
-    
-    
-    
-    
-        
-   
 });

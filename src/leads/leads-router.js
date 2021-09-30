@@ -18,7 +18,18 @@ leadsRouter
     .post(jsonParser, (req, res, next) => {
         const { name, email, phone, comment } = req.body;
 
-        const newLead = { name, email, phone, comment };
+        const newLead = { name, email, phone }
+          
+
+        for (const [key, value] of Object.entries(newLead)) {
+            if (value == null) {
+                return res.status(400).json({ 
+                    error: { message: `Missing '${key}' in request body` }
+                });
+            };
+        };
+
+        newLead.comment = comment;
 
         LeadsService.insertLead(req.app.get('db'), newLead)
             .then(lead => {
