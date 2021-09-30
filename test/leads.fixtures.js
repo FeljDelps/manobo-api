@@ -27,6 +27,29 @@ function makeLeadsArray() {
     ];
 }
 
+function makeMaliciousLead() {
+    
+    const maliciousLead = {
+        id: 911,
+        name: 'Naughty naughty very naughty <script>alert("xss");</script>',
+        email: 'badlead@email.com',
+        phone: '(111) 111-1111',
+        comment: `Bad image <img src="https://url.to.file.which/does-not.exist" onerror="alert(document.cookie);">. But not <strong>all</strong> bad.`,
+        date_added: new Date().toISOString()
+    };
+
+    const goodLead = {
+        ...maliciousLead, 
+        name: 'Naughty naughty very naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt;',
+        comment: `Bad image <img src="https://url.to.file.which/does-not.exist">. But not <strong>all</strong> bad.`
+    }
+
+    return {
+        maliciousLead,
+        goodLead
+    }
+}
+
 module.exports = {
-    makeLeadsArray
+    makeLeadsArray, makeMaliciousLead
 }

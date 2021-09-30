@@ -1,8 +1,19 @@
 const express = require('express');
+const xss = require('xss');
 const LeadsService = require('./leads-service');
 
 const leadsRouter = express.Router();
 const jsonParser = express.json();
+
+const serializeLead = lead => ({
+    id: lead.id,
+    name: xss(lead.name),
+    email: lead.email,
+    phone: lead.phone,
+    comment: xss(lead.comment),
+    date_added: lead.date_added
+})
+
 
 leadsRouter
     .route('/')
@@ -11,7 +22,7 @@ leadsRouter
 
         LeadsService.getAllLeads(knexInstance)
             .then(leads => {
-                res.json(leads)
+                res.json(leads.map(serializeLead))
             })
             .catch(next)
     })
@@ -36,7 +47,7 @@ leadsRouter
                 res
                 .status(201)
                 .location(`/leads/${lead.id}`)
-                .json(lead)
+                .json(serializeLead(lead))
             })
             .catch(next)
     })
@@ -53,7 +64,7 @@ leadsRouter
                         error: { message: `Lead doesn't exist` }
                     });
                 };
-                res.json(lead)
+                res.json(serializeLead(lead))
             })
             .catch(next)  
     })

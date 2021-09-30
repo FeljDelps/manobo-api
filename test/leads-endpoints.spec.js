@@ -1,7 +1,7 @@
 const { expect } = require('chai');
 const knex = require('knex');
 const app = require('../src/app');
-const { makeLeadsArray } = require('./leads.fixtures');
+const { makeLeadsArray, makeMaliciousLead } = require('./leads.fixtures');
 const supertest = require('supertest');
 
 describe.only('Leads endpoints', function() {
@@ -47,10 +47,48 @@ describe.only('Leads endpoints', function() {
                     .expect(200, testLeads)
             });
         });
+
+        context(`Given an XSS attack`, () => {
+            const { maliciousLead, goodLead } = makeMaliciousLead();
+
+            beforeEach('insert malicious lead', () => {
+                return db
+                    .into('manobo_leads')
+                    .insert([ maliciousLead ])
+            });
+
+            it('removes XSS attack content', () => {
+                return supertest(app)
+                    .get('/leads')
+                    .expect(200)
+                    .expect(res => {
+                        expect(res.body[0].name).to.eql(goodLead.name)
+                        expect(res.body[0].comment).to.eql(goodLead.comment)
+                    })
+            });
+        });
     });
 
     describe('GET /leads/:lead_id', () => {
-        
+        context('Given an XSS attack lead', () => {
+            const { maliciousLead, goodLead } = makeMaliciousLead()
+
+            beforeEach('insert malicious lead', () => {
+                return db
+                    .into('manobo_leads')
+                    .insert([ maliciousLead ]) 
+            });
+
+            it(`removes XSS attack content`, () => {
+                return supertest(app)
+                    .get(`/leads/${maliciousLead.id}`)
+                    .expect(200)
+                    .expect(res => {
+                        expect(res.body).to.eql(goodLead)
+                    })
+            })
+        })
+
         context('Given no leads', () => {
             (`it responds with 404`, () => {
                 const leadId = 12345;
@@ -80,7 +118,7 @@ describe.only('Leads endpoints', function() {
         });
     });
 
-    describe.only('POST /leads', () => {
+    describe('POST /leads', () => {
         it(`creates a lead, responding with a 201 and the new lead`, () => {
             this.retries(3)
 
@@ -132,6 +170,19 @@ describe.only('Leads endpoints', function() {
                         error: { message: `Missing '${field}' in request body`}
                     })
             });
+
+            it(`given an XSS attack`, () => {
+                const { maliciousLead, goodLead } = makeMaliciousLead();
+
+                return supertest(app)
+                    .post('/leads')
+                    .send(maliciousLead)
+                    .expect(201)
+                    .expect(res => {
+                        expect(res.body.name).to.eql(goodLead.name)
+                        expect(res.body.comment).to.eql(goodLead.comment)
+                    })
+            })
         });
     });
 });
