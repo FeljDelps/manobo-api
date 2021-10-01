@@ -1,6 +1,8 @@
+const path = require('path')
 const express = require('express');
 const xss = require('xss');
 const LeadsService = require('./leads-service');
+const { updateLead } = require('./leads-service');
 
 const leadsRouter = express.Router();
 const jsonParser = express.json();
@@ -46,7 +48,7 @@ leadsRouter
             .then(lead => {
                 res
                 .status(201)
-                .location(`/leads/${lead.id}`)
+                .location(path.posix.join(req.originalUrl, `/${lead.id}`))
                 .json(serializeLead(lead))
             })
             .catch(next)
@@ -68,17 +70,38 @@ leadsRouter
             .catch(next)
     })
     .get((req, res, next) => {
-        res.json(serializeLead(lead))
-        .catch(next)
+        res.json(serializeLead(res.lead))
     })
     .delete((req, res, next) => {
         const knexInstance = req.app.get('db')
 
         LeadsService.deleteLead(knexInstance, req.params.lead_id)
-            .then(rowsAffected => {
+            .then(() => {
                 res.status(204).end()
             })
             .catch(next)
+    })
+    .patch(jsonParser, (req, res, next) => {
+        const knexInstance = req.app.get('db');
+
+        const { name, email, phone, comment } = req.body;
+
+        const updatedLead = { name, email, phone, comment };
+
+        const numberOfValues = Object.values(updatedLead).filter(Boolean).length
+            if (numberOfValues === 0) {
+                return res.status(400).json({ 
+                    error: { 
+                        message: `Request body must contain either 'name', 'email', 'phone', or 'comment`
+                    }
+                });
+            };
+
+        LeadsService.updateLead(knexInstance, req.params.lead_id, updatedLead)
+            .then( () => {
+                res.status(204).end()
+            })
+            .catch(next); 
     });
 
 module.exports = leadsRouter;

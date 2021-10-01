@@ -21,12 +21,12 @@ describe.only('Leads endpoints', function() {
 
     afterEach('cleanup', () => db('manobo_leads').truncate());
 
-    describe('GET /leads', () => {
+    describe('GET /api/leads', () => {
         
         context('Given no leads', () => {
             it(`responds 200 with an empty list`, () => {
                 return supertest(app)
-                    .get('/leads')
+                    .get('/api/leads')
                     .expect(200, [])
             });
         });
@@ -41,9 +41,9 @@ describe.only('Leads endpoints', function() {
             });
     
     
-            it('GET /leads responds with 200 and all of the leads', () => {
+            it('GET /api/leads responds with 200 and all of the leads', () => {
                 return supertest(app)
-                    .get('/leads')
+                    .get('/api/leads')
                     .expect(200, testLeads)
             });
         });
@@ -59,7 +59,7 @@ describe.only('Leads endpoints', function() {
 
             it('removes XSS attack content', () => {
                 return supertest(app)
-                    .get('/leads')
+                    .get('/api/leads')
                     .expect(200)
                     .expect(res => {
                         expect(res.body[0].name).to.eql(goodLead.name)
@@ -69,7 +69,7 @@ describe.only('Leads endpoints', function() {
         });
     });
 
-    describe('GET /leads/:lead_id', () => {
+    describe('GET api/leads/:lead_id', () => {
         context('Given an XSS attack lead', () => {
             const { maliciousLead, goodLead } = makeMaliciousLead()
 
@@ -81,7 +81,7 @@ describe.only('Leads endpoints', function() {
 
             it(`removes XSS attack content`, () => {
                 return supertest(app)
-                    .get(`/leads/${maliciousLead.id}`)
+                    .get(`/api/leads/${maliciousLead.id}`)
                     .expect(200)
                     .expect(res => {
                         expect(res.body).to.eql(goodLead)
@@ -93,7 +93,7 @@ describe.only('Leads endpoints', function() {
             (`it responds with 404`, () => {
                 const leadId = 12345;
                 return supertest(app)
-                    .get(`/leads/${leadId}`)
+                    .get(`/api/leads/${leadId}`)
                     .expect(404, { error: { message: `Lead doesn't exist` } })
             })
         })
@@ -107,18 +107,18 @@ describe.only('Leads endpoints', function() {
                     .insert(testLeads)
             });
     
-            it('GET /leads/:lead_id responds with 200 and the specified lead', () => {
+            it('GET /api/leads/:lead_id responds with 200 and the specified lead', () => {
                 const leadId = 2;
                 const expectedLead = testLeads[leadId -1]
         
                 return supertest(app)
-                    .get(`/leads/${leadId}`)
+                    .get(`/api/leads/${leadId}`)
                     .expect(200, expectedLead)
             });
         });
     });
 
-    describe('POST /leads', () => {
+    describe('POST /api/leads', () => {
         it(`creates a lead, responding with a 201 and the new lead`, () => {
             this.retries(3)
 
@@ -130,7 +130,7 @@ describe.only('Leads endpoints', function() {
             };
 
             return supertest(app)
-                .post('/leads')
+                .post('/api/leads')
                 .send(newLead)
                 .expect(201)
                 .expect(res => {
@@ -139,14 +139,14 @@ describe.only('Leads endpoints', function() {
                     expect(res.body.phone).to.eql(newLead.phone)
                     expect(res.body.comment).to.eql(newLead.comment)
                     expect(res.body).to.have.property('id')
-                    expect(res.header.location).to.eql(`/leads/${res.body.id}`)
+                    expect(res.header.location).to.eql(`/api/leads/${res.body.id}`)
                         const expected = new Date().toLocaleString()
                         const actual = new Date(res.body.date_added).toLocaleString()
                         expect(actual).to.eql(expected)
                 })
                 .then(postRes => 
                     supertest(app)
-                        .get(`/leads/${postRes.body.id}`)
+                        .get(`/api/leads/${postRes.body.id}`)
                         .expect(postRes.body)
                 );
         }); 
@@ -164,35 +164,35 @@ describe.only('Leads endpoints', function() {
                 delete newLead[field]
     
                 return supertest(app)
-                    .post('/leads')
+                    .post('/api/leads')
                     .send(newLead)
                     .expect(400, { 
                         error: { message: `Missing '${field}' in request body`}
                     })
             });
+        });
 
-            it(`given an XSS attack`, () => {
-                const { maliciousLead, goodLead } = makeMaliciousLead();
+        it(`given an XSS attack`, () => {
+            const { maliciousLead, goodLead } = makeMaliciousLead();
 
-                return supertest(app)
-                    .post('/leads')
-                    .send(maliciousLead)
-                    .expect(201)
-                    .expect(res => {
-                        expect(res.body.name).to.eql(goodLead.name)
-                        expect(res.body.comment).to.eql(goodLead.comment)
-                    })
-            });
+            return supertest(app)
+                .post('/api/leads')
+                .send(maliciousLead)
+                .expect(201)
+                .expect(res => {
+                    expect(res.body.name).to.eql(goodLead.name)
+                    expect(res.body.comment).to.eql(goodLead.comment)
+                })
         });
     });
 
-    describe.only(`DELETE /leads/:lead_id`, () => { 
+    describe(`DELETE /api/leads/:lead_id`, () => { 
         context('Given no leads in the database', () => {
             it('responds with 404', () => {
                 const leadId = 12345;
 
                 return supertest(app)
-                    .delete(`/leads/${leadId}`)
+                    .delete(`/api/leads/${leadId}`)
                     .expect(404, { error: { message: `Lead doesn't exist` } })
                 });
         });
@@ -211,13 +211,95 @@ describe.only('Leads endpoints', function() {
                 const expectedLeads = testLeads.filter(lead => lead.id !== idToRemove)
                 
                 return supertest(app)
-                    .delete(`/leads/${idToRemove}`)
+                    .delete(`/api/leads/${idToRemove}`)
                     .expect(204)
                     .then(res => 
                         supertest(app)
-                            .get('/leads')
+                            .get('/api/leads')
                             .expect(expectedLeads)
                 );
+            });
+        });
+    });
+
+    describe.only('PATCH /api/leads/:lead_id', () => {
+        context('Given no leads', () => {
+            it('responds with a 404', () => {
+                const leadId = 12345;
+                return supertest(app)
+                    .patch(`/api/leads/${leadId}`)
+                    .expect(404, { error: { message: `Lead doesn't exist` } })
+            });
+        });
+
+        context('Given there are leads in the database', () => {
+            const testLeads = makeLeadsArray();
+
+            beforeEach('insert leads into database', () => {
+                return db
+                    .into('manobo_leads')
+                    .insert(testLeads);
+            });
+
+            it('returns a 204 and updates the lead', () => {
+                const idToUpdate = 2;
+                const updatedLead = {
+                    name: 'updated lead name',
+                    email: 'updated lead email',
+                    phone: '(111) 111-1111',
+                    comment: 'updated lead comment'
+                };
+
+                const expectedLead = {
+                    ...testLeads[idToUpdate -1],
+                    ...updatedLead
+                }
+                
+                return supertest(app)
+                    .patch(`/api/leads/${idToUpdate}`)
+                    .send(updatedLead)
+                    .expect(204)
+                    .then(res => 
+                        supertest(app)
+                            .get(`/api/leads/${idToUpdate}`)
+                            .expect(expectedLead)
+                        )
+            });
+
+            it(`responds 400 when no required fields supplied`, () => {
+                const idToUpdate = 2;
+                return supertest(app)
+                    .patch(`/api/leads/${idToUpdate}`)
+                    .send({ irrelevantField: 'foo' })
+                    .expect(400, { error: { 
+                        message: `Request body must contain either 'name', 'email', 'phone', or 'comment`
+                    }});
+            });
+
+            it('responds 204 when updating only a subset of fields', () => {
+                const idToUpdate = 2;
+                
+                const updateLead = {
+                    name: 'updated field name'
+                };
+                
+                const expectedLead = {
+                    ...testLeads[idToUpdate - 1],
+                    ...updateLead
+                };
+
+                return supertest(app)
+                    .patch(`/api/leads/${idToUpdate}`)
+                    .send({
+                        ...updateLead,
+                        fieldToIgnore: 'Ignore this field'
+                    })
+                    .expect(204)
+                    .then(res => 
+                        supertest(app)
+                            .get(`/api/leads/${idToUpdate}`)
+                            .expect(expectedLead)
+                    );
             });
         });
     });

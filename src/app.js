@@ -15,7 +15,7 @@ app.use(morgan(morganOption));
 app.use(helmet());
 app.use(cors());
 
-app.use('/leads', leadsRouter )
+app.use('/api/leads', leadsRouter )
 
 app.get('/', (req,res) => {
     res.send("Hello, diva!");
