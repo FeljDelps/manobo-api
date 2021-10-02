@@ -2,7 +2,7 @@ function makeLeadsArray() {
     return [
         {
             id: 1,
-            name: 'Test lead name 1',
+            lead_name: 'Test lead name 1',
             email: 'testemail1@email.com',
             phone: '(111) 111-1111',
             comment: 'test 1 comment',
@@ -10,7 +10,7 @@ function makeLeadsArray() {
         },
         {
             id: 2,
-            name: 'Test lead name 2',
+            lead_name: 'Test lead name 2',
             email: 'testemail2@email.com',
             phone: '(222) 222-2222',
             comment: 'test 2 comment',
@@ -18,7 +18,7 @@ function makeLeadsArray() {
         },
         {
             id: 3,
-            name: 'Test lead name 3',
+            lead_name: 'Test lead name 3',
             email: 'testemail3@email.com',
             phone: '(333) 333-3333',
             comment: 'test 3 comment',
@@ -31,7 +31,7 @@ function makeMaliciousLead() {
     
     const maliciousLead = {
         id: 911,
-        name: 'Naughty naughty very naughty <script>alert("xss");</script>',
+        lead_name: 'Naughty naughty very naughty <script>alert("xss");</script>',
         email: 'badlead@email.com',
         phone: '(111) 111-1111',
         comment: `Bad image <img src="https://url.to.file.which/does-not.exist" onerror="alert(document.cookie);">. But not <strong>all</strong> bad.`,
@@ -40,7 +40,7 @@ function makeMaliciousLead() {
 
     const goodLead = {
         ...maliciousLead, 
-        name: 'Naughty naughty very naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt;',
+        lead_name: 'Naughty naughty very naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt;',
         comment: `Bad image <img src="https://url.to.file.which/does-not.exist">. But not <strong>all</strong> bad.`
     }
 

@@ -8,7 +8,7 @@ const jsonParser = express.json();
 
 const serializeLead = lead => ({
     id: lead.id,
-    name: xss(lead.name),
+    lead_name: xss(lead.lead_name),
     email: lead.email,
     phone: lead.phone,
     comment: xss(lead.comment),
@@ -28,9 +28,9 @@ leadsRouter
             .catch(next)
     })
     .post(jsonParser, (req, res, next) => {
-        const { name, email, phone, comment } = req.body;
+        const { lead_name, email, phone, comment } = req.body;
 
-        const newLead = { name, email, phone }
+        const newLead = { lead_name, email, phone }
           
 
         for (const [key, value] of Object.entries(newLead)) {
@@ -83,9 +83,9 @@ leadsRouter
     .patch(jsonParser, (req, res, next) => {
         const knexInstance = req.app.get('db');
 
-        const { name, email, phone, comment } = req.body;
+        const { lead_name, email, phone, comment } = req.body;
 
-        const updatedLead = { name, email, phone, comment };
+        const updatedLead = { lead_name, email, phone, comment };
 
         const numberOfValues = Object.values(updatedLead).filter(Boolean).length
             if (numberOfValues === 0) {

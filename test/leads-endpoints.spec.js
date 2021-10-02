@@ -62,7 +62,7 @@ describe('Leads endpoints', function() {
                     .get('/api/leads')
                     .expect(200)
                     .expect(res => {
-                        expect(res.body[0].name).to.eql(goodLead.name)
+                        expect(res.body[0].lead_name).to.eql(goodLead.lead_name)
                         expect(res.body[0].comment).to.eql(goodLead.comment)
                     })
             });
@@ -123,7 +123,7 @@ describe('Leads endpoints', function() {
             this.retries(3)
 
             const newLead = {
-                name: 'Test lead',
+                lead_name: 'Test lead',
                 email: 'testemail@email.com',
                 phone: '(111) 111-1111',
                 comment: 'test 1 comment'    
@@ -134,7 +134,7 @@ describe('Leads endpoints', function() {
                 .send(newLead)
                 .expect(201)
                 .expect(res => {
-                    expect(res.body.name).to.eql(newLead.name)
+                    expect(res.body.lead_name).to.eql(newLead.lead_name)
                     expect(res.body.email).to.eql(newLead.email)
                     expect(res.body.phone).to.eql(newLead.phone)
                     expect(res.body.comment).to.eql(newLead.comment)
@@ -151,11 +151,11 @@ describe('Leads endpoints', function() {
                 );
         }); 
     
-        const requiredFields = ['name', 'email', 'phone'];
+        const requiredFields = ['lead_name', 'email', 'phone'];
 
         requiredFields.forEach(field => {
             const newLead = {
-                name: 'Test lead',
+                lead_name: 'Test lead',
                 email: 'Test email',
                 phone: '(111) 111-1111'
             };
@@ -180,7 +180,7 @@ describe('Leads endpoints', function() {
                 .send(maliciousLead)
                 .expect(201)
                 .expect(res => {
-                    expect(res.body.name).to.eql(goodLead.name)
+                    expect(res.body.lead_name).to.eql(goodLead.lead_name)
                     expect(res.body.comment).to.eql(goodLead.comment)
                 })
         });
@@ -244,7 +244,7 @@ describe('Leads endpoints', function() {
             it('returns a 204 and updates the lead', () => {
                 const idToUpdate = 2;
                 const updatedLead = {
-                    name: 'updated lead name',
+                    lead_name: 'updated lead name',
                     email: 'updated lead email',
                     phone: '(111) 111-1111',
                     comment: 'updated lead comment'
@@ -280,7 +280,7 @@ describe('Leads endpoints', function() {
                 const idToUpdate = 2;
                 
                 const updateLead = {
-                    name: 'updated field name'
+                    lead_name: 'updated field name'
                 };
                 
                 const expectedLead = {
