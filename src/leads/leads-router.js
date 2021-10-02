@@ -2,7 +2,6 @@ const path = require('path')
 const express = require('express');
 const xss = require('xss');
 const LeadsService = require('./leads-service');
-const { updateLead } = require('./leads-service');
 
 const leadsRouter = express.Router();
 const jsonParser = express.json();

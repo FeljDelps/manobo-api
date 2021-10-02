@@ -4,7 +4,7 @@ const app = require('../src/app');
 const { makeLeadsArray, makeMaliciousLead } = require('./leads.fixtures');
 const supertest = require('supertest');
 
-describe.only('Leads endpoints', function() {
+describe('Leads endpoints', function() {
     let db;
 
     before('make knex instance', () => {
@@ -222,7 +222,7 @@ describe.only('Leads endpoints', function() {
         });
     });
 
-    describe.only('PATCH /api/leads/:lead_id', () => {
+    describe('PATCH /api/leads/:lead_id', () => {
         context('Given no leads', () => {
             it('responds with a 404', () => {
                 const leadId = 12345;
