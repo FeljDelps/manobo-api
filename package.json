@@ -25,13 +25,13 @@
     "knex": "^0.95.11",
     "morgan": "^1.10.0",
     "pg": "^8.7.1",
+    "postgrator-cli": "^3.2.0",
     "xss": "^1.0.9"
   },
   "devDependencies": {
     "chai": "^4.3.4",
     "mocha": "^8.3.2",
     "nodemon": "^2.0.7",
-    "postgrator-cli": "^3.2.0",
     "supertest": "^6.1.3"
   }
 }
