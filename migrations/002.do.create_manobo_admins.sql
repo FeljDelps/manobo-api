@@ -5,7 +5,7 @@ CREATE TABLE manobo_admins (
     password TEXT NOT NULL,
     date_created TIMESTAMPTZ DEFAULT now() NOT NULL,
     date_modified TIMESTAMPTZ
-)
+);
 
 ALTER TABLE manobo_leads
     ADD COLUMN 

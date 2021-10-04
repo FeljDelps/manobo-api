@@ -5,7 +5,7 @@ TRUNCATE
     manobo_admins
     RESTART IDENTITY CASCADE;
 
-INSERT INTO manobo_admins (admin_name, full_name, 'password')
+INSERT INTO manobo_admins (admin_name, full_name, password)
 VALUES
     ('admin', 'Manobo Admin', 'password');
 
